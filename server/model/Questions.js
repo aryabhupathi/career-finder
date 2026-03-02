@@ -1,4 +1,3 @@
-// models/Question.js
 const mongoose = require("mongoose");
 const questionSchema = new mongoose.Schema({
   text: {
@@ -18,4 +17,4 @@ const questionSchema = new mongoose.Schema({
     default: 1,
   },
 });
-module.exports = mongoose.model("Question", questionSchema, "Questions");
+module.exports = mongoose.model("Question", questionSchema, "questions");

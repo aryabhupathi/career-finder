@@ -3,11 +3,9 @@ import {
   Typography,
   Grid,
   Card,
-  CardContent,
   Box,
   Stack,
   Button,
-  Chip,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -15,6 +13,7 @@ import InterestRadar from "../components/RadarChart";
 import PersonalityBars from "../components/PersonalityChart";
 import CareerCard from "../components/CareerCard";
 import { getResultById } from "../api/ResultApi";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 const RIASEC_KEYS = [
   "Realistic",
   "Investigative",
@@ -74,8 +73,13 @@ const ResultsPage = () => {
   return (
     <Box sx={{ bgcolor: "#f9fafb", py: { xs: 4, md: 6 } }}>
       <Container maxWidth="lg">
-        {/* Header */}
-        <Stack spacing={2} textAlign="center" mb={6}>
+        <Stack spacing={2} alignItems="center" textAlign="center" mb={6}>
+          <TrendingUpIcon
+            sx={{
+              fontSize: 48,
+              color: "#22C55E",
+            }}
+          />
           <Typography variant="h4" fontWeight={700}>
             Your Career Blueprint
           </Typography>
@@ -83,69 +87,41 @@ const ResultsPage = () => {
             Based on your RIASEC interests and Big Five personality traits.
           </Typography>
         </Stack>
-        <Grid container spacing={4}>
-          <Grid item size={{ xs: 12, md: 6 }}>
-            <Card sx={{ borderRadius: 4, p: 2 }}>
-              <Typography variant="h6" fontWeight={600} mb={2}>
+        <Grid container spacing={4} alignItems="stretch">
+          <Grid item size={{ xs: 12, md: 6 }} display="flex">
+            <Card
+              sx={{
+                borderRadius: 4,
+                p: 3,
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <Typography variant="h6" fontWeight={600} mb={3}>
                 Interest Profile (RIASEC)
               </Typography>
-              <InterestRadar data={riasecScores} />
+              <Box sx={{ flex: 1 }}>
+                <InterestRadar data={riasecScores} />
+              </Box>
             </Card>
           </Grid>
-          <Grid item size={{ xs: 12, md: 6 }}>
-            <Card sx={{ borderRadius: 4, p: 2 }}>
-              <Typography variant="h6" fontWeight={600} mb={2}>
+          <Grid item size={{ xs: 12, md: 6 }} display="flex">
+            <Card
+              sx={{
+                borderRadius: 4,
+                p: 3,
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <Typography variant="h6" fontWeight={600} mb={3}>
                 Personality Traits (Big Five)
               </Typography>
-              <PersonalityBars data={big5Scores} />
-            </Card>
-          </Grid>
-        </Grid>
-        <Grid container spacing={4} mt={4}>
-          <Grid item size={{ xs: 12, md: 6 }}>
-            <Card sx={{ borderRadius: 4 }}>
-              <CardContent>
-                <Typography fontWeight={600}>
-                  Top Personality Strengths
-                </Typography>
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  mt={2}
-                  flexWrap="wrap"
-                  useFlexGap
-                >
-                  {getTopTraits(big5Scores).map((trait, index) => (
-                    <Chip
-                      key={index}
-                      label={trait}
-                      sx={{ bgcolor: "#eef2ff", color: "#4f46e5" }}
-                    />
-                  ))}
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item size={{ xs: 12, md: 6 }}>
-            <Card sx={{ borderRadius: 4 }}>
-              <CardContent>
-                <Typography fontWeight={600}>Core Interests</Typography>
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  mt={2}
-                  flexWrap="wrap"
-                  useFlexGap
-                >
-                  {getTopTraits(riasecScores, 3).map((trait, index) => (
-                    <Chip
-                      key={index}
-                      label={trait}
-                      sx={{ bgcolor: "#f3e8ff", color: "#9333ea" }}
-                    />
-                  ))}
-                </Stack>
-              </CardContent>
+              <Box sx={{ flex: 1 }}>
+                <PersonalityBars data={big5Scores} />
+              </Box>
             </Card>
           </Grid>
         </Grid>
