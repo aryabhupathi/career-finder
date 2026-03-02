@@ -6,8 +6,13 @@ import {
   Box,
   Stack,
   Button,
+  CardContent,
+  Chip,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
+import { useRef } from "react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { useEffect, useState } from "react";
 import InterestRadar from "../components/RadarChart";
 import PersonalityBars from "../components/PersonalityChart";
@@ -30,6 +35,7 @@ const BIG5_KEYS = [
   "Neuroticism",
 ];
 const ResultsPage = () => {
+  const reportRef = useRef();
   const { resultId } = useParams();
   const [result, setResult] = useState(null);
   useEffect(() => {
@@ -70,8 +76,45 @@ const ResultsPage = () => {
       primaryInterest: topInterest,
     }));
   }
+  const handleDownload = async (e) => {
+    try {
+      if (e?.currentTarget) {
+        e.currentTarget.blur();
+      }
+      document.body.style.cursor = "none";
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      const element = reportRef.current;
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        scrollY: -window.scrollY,
+        windowWidth: document.documentElement.scrollWidth,
+        windowHeight: document.documentElement.scrollHeight,
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210;
+      const pageHeight = 295;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      pdf.save(`Career-Blueprint-${Date.now()}.pdf`);
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+    } finally {
+      document.body.style.cursor = "default";
+    }
+  };
   return (
-    <Box sx={{ bgcolor: "#f9fafb", py: { xs: 4, md: 6 } }}>
+    <Box ref={reportRef} sx={{ bgcolor: "#f9fafb", py: { xs: 4, md: 6 } }}>
       <Container maxWidth="lg">
         <Stack spacing={2} alignItems="center" textAlign="center" mb={6}>
           <TrendingUpIcon
@@ -125,6 +168,62 @@ const ResultsPage = () => {
             </Card>
           </Grid>
         </Grid>
+        <Grid container spacing={4} mt={4}>
+          <Grid item size={{ xs: 12, md: 6 }}>
+            <Card sx={{ borderRadius: 4 }}>
+              <CardContent>
+                <Typography fontWeight={600}>Top Strengths</Typography>
+                <Stack spacing={1} mt={2}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 1.5,
+                      mt: 2,
+                    }}
+                  >
+                    {getTopTraits(traitScores).map((trait, index) => (
+                      <Chip
+                        key={index}
+                        label={trait}
+                        sx={{
+                          bgcolor: "#eef2ff",
+                          color: "#4f46e5",
+                          fontWeight: 500,
+                        }}
+                      />
+                    ))}
+                  </Box>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item size={{ xs: 12, md: 6 }}>
+            <Card sx={{ borderRadius: 4 }}>
+              <CardContent>
+                <Typography fontWeight={600}>Core Values</Typography>
+                <Stack spacing={1} mt={2}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 1.5,
+                      mt: 2,
+                    }}
+                  >
+                    {getTopTraits(traitScores, 3).map((trait, index) => (
+                      <Chip
+                        key={index}
+                        label={trait}
+                        sx={{ bgcolor: "#f3e8ff", color: "#9333ea" }}
+                      />
+                    ))}
+                  </Box>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
         <Box mt={6}>
           <Typography variant="h5" fontWeight={700} mb={2}>
             Top Career Matches
@@ -139,7 +238,18 @@ const ResultsPage = () => {
           spacing={2}
           mt={6}
         >
-          <Button variant="outlined">Save Report</Button>
+          <Button
+            variant="contained"
+            disableRipple
+            disableElevation
+            onClick={handleDownload}
+            sx={{
+              borderRadius: 30,
+              px: 4,
+            }}
+          >
+            Save Report
+          </Button>
           <Button
             variant="contained"
             sx={{
